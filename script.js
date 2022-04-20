@@ -1,40 +1,72 @@
 'use strict';
 
 // selecting the elements
-const player1ScoreElement = document.getElementById('score--0');
-const player2ScoreElement = document.getElementById('score--1');
+const player0Element = document.querySelector('.player--0');
+const player1Element = document.querySelector('.player--1');
+const player0ScoreElement = document.getElementById('score--0');
+const player1ScoreElement = document.getElementById('score--1');
+const currentScoreElement0 = document.getElementById('current--0');
+const currentScoreElement1 = document.getElementById('current--1');
 const diceElement = document.querySelector('.dice');
+const btnNew = document.querySelector('.btn--new');
+const btnRoll = document.querySelector('.btn--roll');
+const buttonHold = document.querySelector('.btn--hold');
 
 // starting conditions
-player1ScoreElement.textContent = 0;
-player2ScoreElement.textContent = 0;
-diceElement.classList.add('hidden')
+let scores, currentScore, activePlayer, playing;
+
+const init = function () {
+    scores = [0, 0];
+    currentScore = 0;
+    activePlayer = 0;
+    playing = true;
+
+    player0ScoreElement.textContent = 0;
+    player1ScoreElement.textContent = 0;
+    diceElement.classList.add('hidden');
+    currentScoreElement0.textContent = 0;
+    currentScoreElement1.textContent = 0;
+    player1Element.classList.remove('player--winner');
+    player0Element.classList.remove('player--winner');
+    player1Element.classList.remove('player--active');
+};
+
+init();
+const switchPlayer = function () {
+    document.getElementById(`current--${activePlayer}`).textContent = 0;
+    activePlayer = activePlayer === 0 ? 1 : 0;
+    currentScore = 0;
+    player0Element.classList.toggle('player--active');
+    player1Element.classList.toggle('player--active');
+}
 
 // user rolls dice
-// class dice
-//generate random dice roll
-let diceRoll = Math.trunc(Math.random() * 6) + 1;
-console.log(diceRoll);
-// show dice roll
-let showDice = function(diceRoll){
-    switch(diceRoll){
-        case 1:
-            return 'dice-1.png';
-        case 2:
-            return 'dice-2.png';
-        case 3:
-            return 'dice-3.png';
-        case 4:
-            return 'dice-4.png';
-        case 5:
-            return 'dice-5.png';
-        case 6:
-            return 'dice-6.png';
+btnRoll.addEventListener('click', function () {
+    if (playing) {
+
+        let diceRoll = Math.trunc(Math.random() * 6) + 1;
+        diceElement.classList.remove('hidden');
+        diceElement.src = `dice-${diceRoll}.png`;
+        if (diceRoll !== 1) {
+            currentScore += diceRoll;
+            document.getElementById(`current--${activePlayer}`).textContent = currentScore;
+        } else {
+            switchPlayer();
+        }
     }
-};
-// check if dice is a 1
-
-// add dice roll to current score
-
-// display new score
-
+});
+buttonHold.addEventListener('click', function () {
+    if (playing) {
+        scores[activePlayer] += currentScore;
+        document.getElementById(`score--${activePlayer}`).textContent = scores[activePlayer];
+        if (scores[activePlayer] >= 100) {
+            playing = false;
+            diceElement.classList.add('hidden');
+            document.querySelector(`.player--${activePlayer}`).classList.add(`player--winner`);
+            document.querySelector(`.player--${activePlayer}`).classList.remove(`player--active`);
+        } else {
+            switchPlayer();
+        }
+    }
+})
+btnNew.addEventListener('click', init);
